@@ -15,6 +15,7 @@ export const MatchSchema = z.object({
     score_home: z.number().nullable(),
     score_away: z.number().nullable(),
     home_team: TeamSchema,
+    away_team: TeamSchema,
     competition: z.object({
         id: z.number(),
         name: z.string(),
