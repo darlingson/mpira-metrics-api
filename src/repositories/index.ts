@@ -1,21 +1,9 @@
 import { sql } from '../services/db.js';
 
-export const TeamsRepository = {
-    async findAll() {
-        const query = sql`SELECT * FROM teams ORDER BY name`;
-        return await query;
-    },
-
-    async findById(id: number) {
-        const query = sql`SELECT * FROM teams WHERE id = ${id}`;
-        const result = await query;
-        return result[0] || null;
-    }
-};
 
 export const MatchesRepository = {
-    async findAll() {
-        const query = sql`
+  async findAll() {
+    const query = sql`
       SELECT 
         m.id,
         m.date,
@@ -31,11 +19,11 @@ export const MatchesRepository = {
       JOIN competitions c ON m.competition_id = c.id
       ORDER BY m.date DESC
     `;
-        return await query;
-    },
+    return await query;
+  },
 
-    async findById(id: number) {
-        const query = sql`
+  async findById(id: number) {
+    const query = sql`
       SELECT 
         m.id,
         m.date,
@@ -51,7 +39,7 @@ export const MatchesRepository = {
       JOIN competitions c ON m.competition_id = c.id
       WHERE m.id = ${id}
     `;
-        const result = await query;
-        return result[0] || null;
-    }
+    const result = await query;
+    return result[0] || null;
+  }
 };
