@@ -17,6 +17,20 @@ export const CompetitionsController = {
         }
     },
 
+    async getList(c: Context) {
+        try {
+            const data = await CompetitionsRepository.list();
+
+            return c.json({
+                success: true,
+                data
+            });
+        } catch (error) {
+            console.error(error);
+            return c.json({ success: false, message: 'Error fetching competitions' }, 500);
+        }
+    },
+
     async getDetails(c: Context) {
         const id = c.req.param('id');
         const competition = await CompetitionsRepository.findById(Number(id));

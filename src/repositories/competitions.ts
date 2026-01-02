@@ -1,9 +1,13 @@
 import { sql } from '../services/db.js';
 
 export const CompetitionsRepository = {
-    async findAll() {
-        // The LATERAL JOIN allows us to fetch top 10 scorers specifically for each competition row
-        const query = sql`
+  async list() {
+    const query = sql`SELECT * FROM competitions`;
+    return await query;
+  },
+  async findAll() {
+    // The LATERAL JOIN allows us to fetch top 10 scorers specifically for each competition row
+    const query = sql`
       SELECT 
         c.id,
         c.name,
@@ -35,24 +39,24 @@ export const CompetitionsRepository = {
       FROM competitions c
       ORDER BY c.season DESC, c.name ASC
     `;
-        return await query;
-    },
-    async findById(id: number) {
-        const query = sql`SELECT * FROM competitions WHERE id = ${id}`;
-        const result = await query;
-        return result[0] || null;
-    },
+    return await query;
+  },
+  async findById(id: number) {
+    const query = sql`SELECT * FROM competitions WHERE id = ${id}`;
+    const result = await query;
+    return result[0] || null;
+  },
 
-    /**
-     * Gets top scorers.
-     * @param {number|null} competitionId - If provided, filters by specific competition. Else filters by year.
-     * @param {string|null} year - The year to filter by (e.g., '2025'). Only used if competitionId is null.
-     */
-    async getTopScorers(competitionId = null, year = null) {
-        // We join match_events -> matches -> competitions -> players -> teams
-        // We filter WHERE event_type = 'goal'
+  /**
+   * Gets top scorers.
+   * @param {number|null} competitionId - If provided, filters by specific competition. Else filters by year.
+   * @param {string|null} year - The year to filter by (e.g., '2025'). Only used if competitionId is null.
+   */
+  async getTopScorers(competitionId = null, year = null) {
+    // We join match_events -> matches -> competitions -> players -> teams
+    // We filter WHERE event_type = 'goal'
 
-        let query = sql`
+    let query = sql`
       SELECT 
         p.id as player_id,
         p.name as player_name,
@@ -68,31 +72,31 @@ export const CompetitionsRepository = {
       WHERE e.event_type = 'goal'
     `;
 
-        if (competitionId) {
-            query = sql`${query} AND m.competition_id = ${competitionId}`;
-        } else if (year) {
-            // Assuming season is stored as "2025" or "2025/26". 
-            // We check if the season string starts with the year.
-            query = sql`${query} AND c.season LIKE ${year + '%'}`;
-        }
+    if (competitionId) {
+      query = sql`${query} AND m.competition_id = ${competitionId}`;
+    } else if (year) {
+      // Assuming season is stored as "2025" or "2025/26". 
+      // We check if the season string starts with the year.
+      query = sql`${query} AND c.season LIKE ${year + '%'}`;
+    }
 
-        query = sql`
+    query = sql`
       ${query}
       GROUP BY p.id, p.name, t.name
       ORDER BY goals DESC
       LIMIT 10
     `;
 
-        return await query;
-    },
+    return await query;
+  },
 
-    /**
-     * Gets matches for a competition with pagination
-     */
-    async getMatches(id: string, limit = 10, offset = 0) {
-        // We need to fetch the data AND the total count for pagination metadata
+  /**
+   * Gets matches for a competition with pagination
+   */
+  async getMatches(id: string, limit = 10, offset = 0) {
+    // We need to fetch the data AND the total count for pagination metadata
 
-        const query = sql`
+    const query = sql`
       SELECT 
         m.id,
         m.date,
@@ -110,16 +114,16 @@ export const CompetitionsRepository = {
       OFFSET ${offset}
     `;
 
-        const countQuery = sql`
+    const countQuery = sql`
       SELECT COUNT(*) as total
       FROM matches
       WHERE competition_id = ${id}
     `;
 
-        const [matches, countResult] = await Promise.all([query, countQuery]);
+    const [matches, countResult] = await Promise.all([query, countQuery]);
 
-        const total = parseInt(countResult[0].total);
+    const total = parseInt(countResult[0].total);
 
-        return { matches, total };
-    }
+    return { matches, total };
+  }
 };

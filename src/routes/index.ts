@@ -15,6 +15,7 @@ app.get('/matches/grouped', MatchesController.getMatches);
 app.get('/matches/:id', MatchesController.get);
 
 app.get('/competitions', CompetitionsController.list);
+app.get('/competitions/list', CompetitionsController.getList);
 app.get('/competitions/:id', CompetitionsController.getDetails);
 
 app.get('/overview', OverviewController.list);
