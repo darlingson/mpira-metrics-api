@@ -26,11 +26,18 @@ export const MatchesController = {
         }
     },
     async getMatches(c: Context) {
-        console.log("getMatches called")
+        console.log("getMatches called");
         try {
-            const data = await MatchesRepository.findGroupedBySeasonCompetitionMonth();
-            console.log("Data retrieved successfully, matches count:", data.length);
-            return c.json({ success: true, data });
+            const season = c.req.query('season');
+            const page = parseInt(c.req.query('page') || '1');
+            const limit = Math.min(parseInt(c.req.query('limit') || '50'), 100);
+
+            const data = await MatchesRepository.findGroupedBySeasonCompetitionMonth(season, page, limit);
+
+            return c.json({
+                success: true,
+                data
+            });
         } catch (error) {
             console.error("Error in getMatches:", error);
             return c.json({ success: false, message: 'Error fetching matches' }, 500);
